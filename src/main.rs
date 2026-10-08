@@ -1,17 +1,13 @@
 //! gray-plan — read-only exploration mode ("plan mode").
 //!
-//! Port of pi's `plan-mode` extension. `/plan` toggles; state persists at
-//! ~/.gray/plan/enabled (honors $GRAY_HOME). While on, `tool/before` denies
-//! `edit`, `write`, and every tool outside a read-only set; `bash` is
-//! allowed only when every pipe/chain segment matches a SAFE pattern and no
-//! segment matches a DESTRUCTIVE one (pi plan-mode/utils.ts, ported
-//! faithfully).
+//! `/plan` toggles; state persists at ~/.gray/plan/enabled (honors
+//! $GRAY_HOME). While on, `tool/before` denies `edit`, `write`, and every
+//! tool outside a read-only set; `bash` is allowed only when every
+//! pipe/chain segment matches a safe pattern and no segment matches a
+//! destructive one.
 //!
 //! `agent/before_start` injects a [PLAN MODE ACTIVE] note so the model
 //! knows why writes deny.
-//!
-//! Partial port: pi's [DONE:n] step tracking and progress widget are
-//! dropped — there is no wire API for widgets. See README.
 
 use std::io::{BufRead, Write};
 use std::path::PathBuf;
@@ -27,7 +23,7 @@ const READ_ONLY_TOOLS: &[&str] = &[
     "bash", "read", "grep", "find", "ls", "view", "web_search", "web_fetch", "recall",
 ];
 
-/// pi plan-mode/utils.ts DESTRUCTIVE_PATTERNS, ported to Rust regex.
+/// Destructive command patterns for Rust regex.
 /// `(^|[^<])>(?!>)` becomes `(^|[^<])>($|[^>])` (no lookahead in `regex`).
 const DESTRUCTIVE_PATTERNS: &[&str] = &[
     r"(?i)\brm\b",
@@ -65,7 +61,7 @@ const DESTRUCTIVE_PATTERNS: &[&str] = &[
     r"(?i)\b(vim?|nano|emacs|code|subl)\b",
 ];
 
-/// pi plan-mode/utils.ts SAFE_PATTERNS, ported verbatim.
+/// Safe read-only command patterns.
 const SAFE_PATTERNS: &[&str] = &[
     r"^\s*cat\b",
     r"^\s*head\b",

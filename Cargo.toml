@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 rust-version = "1.91"
 license = "MIT"
-description = "plan plugin for the gray agent harness"
+description = "A read-only planning mode for safer repository exploration"
 
 [[bin]]
 name = "gray-plan"

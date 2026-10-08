@@ -1,34 +1,42 @@
-# gray-plan
+<p align="center">
+  <img src="assets/gray-logo.svg" alt="gray" width="96">
+</p>
+<h1 align="center">gray-plan</h1>
+<p align="center">A read-only planning mode for safer repository exploration.</p>
+<p align="center">
+  <a href="https://github.com/vstaln/gray-plan/blob/main/LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <img alt="gray plugin" src="https://img.shields.io/badge/gray-plugin-7aa2f7.svg">
+  <img alt="rust" src="https://img.shields.io/badge/built%20with-rust-orange.svg">
+</p>
 
-Read-only exploration mode for gray — a sidecar plugin port of pi's
-`plan-mode` extension.
+`/plan` toggles a read-only exploration mode. State persists at
+`~/.gray/plan/enabled` (honoring `$GRAY_HOME`), and `/plan status` reports
+the current mode.
 
-`/plan` toggles plan mode (state persists at `~/.gray/plan/enabled`,
-honoring `$GRAY_HOME`); `/plan status` reports it. While on, `tool/before`
-denies `edit`, `write`, and every tool outside the read-only set
-(`read`, `grep`, `find`, `ls`, `view`, `web_search`, `web_fetch`, `recall`).
-`bash` is allowed only when **every** pipe/chain segment (`|`, `||`, `&&`,
-`;`, newline) matches a SAFE pattern and no segment matches a DESTRUCTIVE
-one. Deny reason: `plan mode is on — read-only; /plan to exit`.
+While plan mode is on, `tool/before` denies `edit`, `write`, and every tool
+outside the read-only set (`read`, `grep`, `find`, `ls`, `view`,
+`web_search`, `web_fetch`, `recall`). `bash` is allowed only when every
+pipe/chain segment (`|`, `||`, `&&`, `;`, newline) matches a safe pattern
+and no segment matches a destructive one.
 
-`agent/before_start` injects a `[PLAN MODE ACTIVE]` note so the model
-knows writes will deny.
+Denials return: `plan mode is on — read-only; /plan to exit`.
 
-## Patterns
+`agent/before_start` injects a `[PLAN MODE ACTIVE]` note so the model knows
+why mutations will be denied.
 
-`SAFE_PATTERNS` and `DESTRUCTIVE_PATTERNS` in `src/main.rs` are a faithful
-port of pi `plan-mode/utils.ts` (the `(?!>)` lookahead is rewritten as
-`($|[^>])` for the `regex` crate, and commands are additionally segmented
-on pipes/chains before judging).
+## Safety rules
 
-## Partial port
+The safe and destructive command patterns in `src/main.rs` are evaluated per
+pipeline segment. This keeps commands such as `pwd && ls` usable while still
+blocking writes, deletes, privilege changes, and other mutation-shaped work.
 
-pi's `[DONE:n]` step tracking, plan-step widgets, and the execute-plan
-handoff are dropped: the gray wire has no widget/`sendMessage` API, so
-there is nowhere to render them. This port keeps the read-only gate, the
-`/plan` toggle, and the plan-mode context injection.
+## Scope
 
-## Wire methods used
+This plugin intentionally keeps the read-only gate, `/plan` toggle, and
+plan-mode context injection. Step-tracking widgets and an execute-plan
+handoff are not included because gray's sidecar wire has no widget API.
+
+## Wire methods
 
 - `plugin/manifest`, `plugin/shutdown`
 - `tool/before` (hook) — `allow`/`deny` verdicts
@@ -48,3 +56,7 @@ cargo test
 cargo build --release
 gray account check
 ```
+
+---
+Part of the [gray](https://github.com/vstaln/gray) plugin ecosystem —
+the open-source AI agent harness. <https://gray.alignment.id>
