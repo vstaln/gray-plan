@@ -205,14 +205,21 @@ fn tool_before(params: &Value) -> Value {
 /// `/plan …` — `argv` excludes the command name.
 fn run_command(argv: &[&str]) -> String {
     match argv.first().copied() {
-        Some("status") | None => {
+        Some("status") => {
             format!(
                 "plan mode {} — read-only set: {} (+ gated bash) · /plan toggles",
                 if plan_mode_on() { "ON" } else { "off" },
                 READ_ONLY_TOOLS.join(", ")
             )
         }
-        _ => match set_plan_mode(!plan_mode_on()) {
+        Some("on") | Some("off") => {
+            let want = argv[0] == "on";
+            match set_plan_mode(want) {
+                Ok(()) => format!("plan mode {want}"),
+                Err(e) => format!("couldn't flip state: {e}"),
+            }
+        }
+        None => match set_plan_mode(!plan_mode_on()) {
             Ok(()) => format!(
                 "plan mode {}",
                 if plan_mode_on() {
@@ -223,6 +230,7 @@ fn run_command(argv: &[&str]) -> String {
             ),
             Err(e) => format!("couldn't flip state: {e}"),
         },
+        Some(_) => "usage: /plan [on|off|status] — bare /plan toggles".into(),
     }
 }
 
