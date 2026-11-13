@@ -238,6 +238,7 @@ fn manifest() -> Value {
         "tools": [],
         "description": "read-only plan mode before you edit",
         "commands": ["/plan"],
+        "command_descriptions": {"/plan": "toggle read-only plan mode"},
         "hooks": ["tool/before", "agent/before_start"],
     })
 }
