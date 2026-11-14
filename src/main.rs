@@ -236,7 +236,7 @@ fn manifest() -> Value {
         "version": env!("CARGO_PKG_VERSION"),
         "protocol": "2.0",
         "tools": [],
-        "description": "read-only",
+        "description": "read-only plan mode before you edit",
         "commands": ["/plan"],
         "hooks": ["tool/before", "agent/before_start"],
     })
