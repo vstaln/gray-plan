@@ -153,7 +153,7 @@ fn is_safe_segment(segment: &str) -> bool {
 /// and newlines. A segment only needs to be safe if it's non-empty.
 fn segments(command: &str) -> Vec<&str> {
     command
-        .split(|c| c == '|' || c == '&' || c == ';' || c == '\n')
+        .split(['|', '&', ';', '\n'])
         .map(str::trim)
         .filter(|s| !s.is_empty())
         .collect()
